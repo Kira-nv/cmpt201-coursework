@@ -16,33 +16,38 @@ int main() {
       continue;
     }
     if (len > 0 && str[len - 1] == '\n') {
-      str[len - 1] = '\0';
+      str[len - 1] = '\0'; // getline() also gets the \n from entering
+                           // into terminal, we need to remove it
     }
 
-    pid_t cpid = fork();
+    pid_t cpid = fork(); // Returns cpid of Child to Parent
+                         // and 0 to Child
 
+    // If Fork Fails
     if (cpid < 0) {
       perror("Failed to fork!\n");
-      continue;
+      continue; // Restart Loop
     }
 
+    // Parent Process Function
     else if (cpid > 0) {
-      int wait = waitpid(cpid, NULL, 0);
+      int wstatus = 0;
+      int wait = waitpid(cpid, &wstatus, 0); // Parent waits until
+                                             // Child status changes
 
       if (wait == -1) {
         perror("Wait Failed\n");
-        continue;
+        continue; // Restart Loop
       }
     }
-
+    // Child Process Function
     else {
-      int exec = execlp(str, str);
+      int exec = execlp(str, str, NULL);
 
       if (exec == -1) {
         printf("Failed to Execute File\n");
       }
-
-      break;
+      break; // Exit Loop and free Child
     }
   }
 
